@@ -1,33 +1,27 @@
 <script setup>
-import { ref } from "vue"
+import useGeolocationWithDetails from "../composables/useGeolocationWithDetails.js"
+import useMap from "../composables/useMap.js"
+import {onMounted, watchEffect} from "vue";
 
-const count = ref();
-const countHex = ref();
-const max = 200;
-const colors = { color:"cyan", backgroundcolor:"black" };
-
+const [latitude, longitude, country, city] = useGeolocationWithDetails();
+// The onMounted() method ensures that the "map" DOM element is correctly inserted into the DOM.
+onMounted(() => {
+  // The watchEffect() method waits for the latitude and longitude to be properly initialized.
+  watchEffect(() => {
+    if (latitude.value && longitude.value) useMap(latitude.value, longitude.value, "map");
+  });
+});
 </script>
 
 <template>
-    <h3>MyCounter Component</h3>
-    Reactive integer-hex field: 
-    <input type="text" v-integers-only.hexa.upper v-model="countHex" 
-        v-focus:colors="colors" v-clearable/>
-    <br/><br/>
-    Entered value: <b>{{countHex}}</b>
-    <br/><br/>    
-    Reactive integer field: 
-    <input type="text" v-integers-only v-model="count" v-max-value.bold="max"
-        v-clearable/>
-    <br/><br/>
-    Max value: <b>{{max}}</b>
-    <br/><br/>
-    Entered value: <b>{{count}}</b>
-    <br/><br/>
-    <!-- It is <span v-timer /> -->
-    <!-- <br>
-    It is <span v-timer.ms /> more precisely -->
-    Elapsed time <span v-timer.chrono />
-    <br>
-    Elapsed time <span v-timer.chrono.ms />more precisely
+  <h3>MyCounter Component</h3>
+  <p>Map around the city: <b v-show="city">{{ city }} - {{ country }}</b></p>
+  <div id="map"/>
 </template>
+
+<style scoped>
+#map {
+  height: 300px;
+  width: 100%;
+}
+</style>
